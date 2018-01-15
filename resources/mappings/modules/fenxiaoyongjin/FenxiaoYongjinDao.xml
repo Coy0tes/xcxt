@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.fenxiaoyongjin.dao.FenxiaoYongjinDao">
+    
+	<sql id="fenxiaoYongjinColumns">
+		a.id AS "id",
+		a.wxopenid AS "wxopenid",
+		(select case when name is not null AND LENGTH(NAME)>0 then name else nickname end from member where wxopenid = a.wxopenid) AS "name",
+		(select mobile from member where wxopenid = a.wxopenid) AS "mobile",
+		a.jine AS "jine",
+		a.layer AS "layer",
+		a.orderid AS "orderid",
+		a.xfzwxopenid AS "xfzwxopenid",
+		a.xfzname AS "xfzname",
+		a.xfjine AS "xfjine",
+		a.ffzt AS "ffzt",
+		a.ordertype AS "ordertype",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		(select headimgurl from member where wxopenid = a.wxopenid) AS "headimgurl",
+		(select nickname from member where wxopenid = a.wxopenid) AS "nickname"
+	</sql>
+	
+	<sql id="fenxiaoYongjinJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="FenxiaoYongjin" >
+		SELECT 
+			<include refid="fenxiaoYongjinColumns"/>
+		FROM fenxiao_yongjin a
+		<include refid="fenxiaoYongjinJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="FenxiaoYongjin" >
+		SELECT 
+			<include refid="fenxiaoYongjinColumns"/>
+		FROM fenxiao_yongjin a
+		<include refid="fenxiaoYongjinJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="mobile != null and mobile != ''">
+				AND a.mobile LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mobile}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mobile}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mobile},'%')</if>
+			</if>
+			<if test="wxopenid != null and wxopenid != ''">
+				and a.wxopenid = #{wxopenid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="FenxiaoYongjin" >
+		SELECT 
+			<include refid="fenxiaoYongjinColumns"/>
+		FROM fenxiao_yongjin a
+		<include refid="fenxiaoYongjinJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO fenxiao_yongjin(
+			id,
+			wxopenid,
+			name,
+			mobile,
+			jine,
+			layer,
+			orderid,
+			xfzwxopenid,
+			xfzname,
+			xfjine,
+			ffzt,
+			ordertype,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{wxopenid},
+			#{name},
+			#{mobile},
+			#{jine},
+			#{layer},
+			#{orderid},
+			#{xfzwxopenid},
+			#{xfzname},
+			#{xfjine},
+			#{ffzt},
+			#{ordertype},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE fenxiao_yongjin SET 	
+			wxopenid = #{wxopenid},
+			name = #{name},
+			mobile = #{mobile},
+			jine = #{jine},
+			layer = #{layer},
+			orderid = #{orderid},
+			xfzwxopenid = #{xfzwxopenid},
+			xfzname = #{xfzname},
+			xfjine = #{xfjine},
+			ffzt = #{ffzt},
+			ordertype = #{ordertype},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM fenxiao_yongjin
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE fenxiao_yongjin SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="FenxiaoYongjin" statementType="STATEMENT">
+		select * FROM fenxiao_yongjin  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

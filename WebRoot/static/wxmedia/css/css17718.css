@@ -1,0 +1,18 @@
+.newlistbox{ width: 1200px; overflow: hidden;}
+.newlistbox .newlistbody{ float:left;width: 1300px;}
+.newlistbox .newlistbody ul{float: left;width:100%; margin: 0; padding: 0;}
+.newlistbox .newlistbody ul li{ float: left; width:300px; list-style-type:none; margin: 0; padding: 0;}
+.newlistbox .newlistbody ul li .newlistonly{ border: 1px solid #ccc; height: 380px; padding: 10px; margin: 10px;}
+.newlistbox .newlistbody ul li .newlistonly span{  font-family: "微软雅黑"; font-size:14px; height: 50px; color: #777; float: left;line-height: 50px; border-bottom: 1px solid #ccc; margin-bottom: 10px; width: 100%;}
+.newlistbox .newlistbody ul li .newlistonly .newlistcont{ font-family: "微软雅黑"; font-size:14px; color: #777; line-height: 24px; text-indent: 2rem; height: 110px; overflow: hidden;}
+
+/*遮罩*/
+.newlistbox .newlistbody ul li .newlistonly{overflow: hidden; position: relative;/* 通用，其他浏览器 有效*/; }
+.newlistbox .newlistbody ul li i{ display: block;position: absolute; float:left; left:0;
+width:100%; height: 400px; color:#fff; bottom:-400px; font-style:normal;cursor:pointer;
+-webkit-transition: all 0.5s; -moz-transition: all 0.5s; -o-transition: all 0.5s;transition: all 0.5s;}
+.newlistbox .newlistbody ul li:hover i{transform: perspective(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateX(0px) translateY(0px) translateZ(0px) skewX(0deg);
+position:absolute;text-align:center;background:rgba(0,0,0,0.5); color:#fff;bottom:0px;}
+.newlistbox .newlistbody ul li i a{display: block;  text-decoration: none;}
+.newlistbox .newlistbody ul li i a em{font-family: "微软雅黑";font-style:normal; color: #fff; font-size: 24px;display: block; text-decoration: none; text-align: center;}
+.newlistbox .newlistbody ul li i a img{ display: block; margin: auto; margin-top: 50%; margin-bottom: 10%;}

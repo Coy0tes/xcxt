@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.caiwuliushui.dao.CaiwuLiushuiDao">
+    
+	<sql id="caiwuLiushuiColumns">
+		a.id AS "id",
+		a.jylx AS "jylx",
+		a.fukuanfang AS "fukuanfang",
+		(select case when a.orderid is not null then name else a.fukuanfang end from member where wxopenid=a.fukuanfang limit 0,1) AS 'fukuanren',
+ 		(select case when a.orderid is not null then mobile else a.fukuanfang end from member where wxopenid=a.fukuanfang limit 0,1) AS 'fukuanrenmobile',
+		a.shoukuanfang AS "shoukuanfang",
+		a.jyje AS "jyje",
+		a.orderid AS "orderid",
+		a.ordertype AS "ordertype",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="caiwuLiushuiJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="CaiwuLiushui" >
+		SELECT 
+			<include refid="caiwuLiushuiColumns"/>
+		FROM caiwu_liushui a
+		<include refid="caiwuLiushuiJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CaiwuLiushui" >
+		SELECT 
+			<include refid="caiwuLiushuiColumns"/>
+		FROM caiwu_liushui a
+		<include refid="caiwuLiushuiJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="jylx != null and jylx != ''">
+				AND a.jylx LIKE 
+					<if test="dbName == 'oracle'">'%'||#{jylx}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{jylx}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{jylx},'%')</if>
+			</if>
+			<if test="fukuanfang != null and fukuanfang != ''">
+				AND a.fukuanfang = #{fukuanfang}
+			</if>
+			<if test="shoukuanfang != null and shoukuanfang != ''">
+				AND a.shoukuanfang = #{shoukuanfang}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CaiwuLiushui" >
+		SELECT 
+			<include refid="caiwuLiushuiColumns"/>
+		FROM caiwu_liushui a
+		<include refid="caiwuLiushuiJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO caiwu_liushui(
+			id,
+			jylx,
+			fukuanfang,
+			shoukuanfang,
+			jyje,
+			orderid,
+			ordertype,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{jylx},
+			#{fukuanfang},
+			#{shoukuanfang},
+			#{jyje},
+			#{orderid},
+			#{ordertype},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE caiwu_liushui SET 	
+			jylx = #{jylx},
+			fukuanfang = #{fukuanfang},
+			shoukuanfang = #{shoukuanfang},
+			jyje = #{jyje},
+			orderid = #{orderid},
+			ordertype = #{ordertype},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM caiwu_liushui
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE caiwu_liushui SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CaiwuLiushui" statementType="STATEMENT">
+		select * FROM caiwu_liushui  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

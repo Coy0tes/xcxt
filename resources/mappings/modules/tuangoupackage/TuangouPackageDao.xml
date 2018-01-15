@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.tuangoupackage.dao.TuangouPackageDao">
+    
+	<sql id="tuangouPackageColumns">
+		a.id AS "id",
+		a.guizename AS "guizename",
+		a.guizecontent AS "guizecontent",
+		a.ison AS "ison",
+		a.fbsj AS "fbsj",
+		a.beginsj AS "beginsj",
+		a.endsj AS "endsj",
+		a.istip AS "istip",
+		a.tiptype AS "tiptype",
+		a.minnum AS "minnum",
+		a.maxnumperson AS "maxnumperson",
+		a.istimetip AS "istimetip",
+		a.initsellnum AS "initsellnum",
+		a.zdtgsl AS "zdtgsl",
+		a.imgurl AS "imgurl",
+		a.price AS "price",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="tuangouPackageJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="TuangouPackage" >
+		SELECT 
+			<include refid="tuangouPackageColumns"/>
+		FROM tuangou_package a
+		<include refid="tuangouPackageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TuangouPackage" >
+		SELECT 
+			<include refid="tuangouPackageColumns"/>
+		FROM tuangou_package a
+		<include refid="tuangouPackageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="guizename != null and guizename != ''">
+				AND a.guizename LIKE 
+					<if test="dbName == 'oracle'">'%'||#{guizename}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{guizename}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{guizename},'%')</if>
+			</if>
+			<if test="ison != null and ison != ''">
+				AND a.ison = #{ison}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TuangouPackage" >
+		SELECT 
+			<include refid="tuangouPackageColumns"/>
+		FROM tuangou_package a
+		<include refid="tuangouPackageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tuangou_package(
+			id,
+			guizename,
+			guizecontent,
+			ison,
+			fbsj,
+			beginsj,
+			endsj,
+			istip,
+			tiptype,
+			minnum,
+			maxnumperson,
+			istimetip,
+			initsellnum,
+			zdtgsl,
+			imgurl,
+			price,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{guizename},
+			#{guizecontent},
+			#{ison},
+			#{fbsj},
+			#{beginsj},
+			#{endsj},
+			#{istip},
+			#{tiptype},
+			#{minnum},
+			#{maxnumperson},
+			#{istimetip},
+			#{initsellnum},
+			#{zdtgsl},
+			#{imgurl},
+			#{price},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tuangou_package SET 	
+			guizename = #{guizename},
+			guizecontent = #{guizecontent},
+			ison = #{ison},
+			fbsj = #{fbsj},
+			beginsj = #{beginsj},
+			endsj = #{endsj},
+			istip = #{istip},
+			tiptype = #{tiptype},
+			minnum = #{minnum},
+			maxnumperson = #{maxnumperson},
+			istimetip = #{istimetip},
+			initsellnum = #{initsellnum},
+			zdtgsl = #{zdtgsl},
+			imgurl = #{imgurl},
+			price = #{price},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="isonUp">
+		UPDATE tuangou_package SET 	
+			ison = #{ison}
+		WHERE id = #{id}
+	</update>
+	<update id="isonDown">
+		UPDATE tuangou_package SET 	
+			ison = #{ison}
+		WHERE id = #{id}
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM tuangou_package
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE tuangou_package SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="TuangouPackage" statementType="STATEMENT">
+		select * FROM tuangou_package  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xuancai.dao.XuancaiGoodsDao">
+    
+	<sql id="xuancaiGoodsColumns">
+		a.id AS "id",
+		a.mainid AS "mainid.id",
+		a.goodsid AS "goodsid",
+		a.num AS "num",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="xuancaiGoodsJoins">
+		LEFT JOIN xuancai b ON b.id = a.mainid
+	</sql>
+	
+    
+	<select id="get" resultType="XuancaiGoods" >
+		SELECT 
+			<include refid="xuancaiGoodsColumns"/>
+		FROM xuancai_goods a
+		<include refid="xuancaiGoodsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getGoodsid" resultType="xuancai">
+		SELECT 
+			<include refid="xuancaiGoodsColumns"/>
+		FROM xuancai_goods a
+		<include refid="xuancaiGoodsJoins"/>
+		WHERE a.goodsid = #{goodsid}
+	</select>
+	
+	<select id="findList" resultType="XuancaiGoods" >
+		SELECT 
+			<include refid="xuancaiGoodsColumns"/>
+		FROM xuancai_goods a
+		<include refid="xuancaiGoodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="goodsid != null and goodsid !=''">
+				AND a.goodsid = #{goodsid}
+			</if>
+			<if test="mainid != null and mainid != ''">
+				AND a.mainid = #{mainid.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XuancaiGoods" >
+		SELECT 
+			<include refid="xuancaiGoodsColumns"/>
+		FROM xuancai_goods a
+		<include refid="xuancaiGoodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xuancai_goods(
+			id,
+			mainid,
+			goodsid,
+			num,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{mainid.id},
+			#{goodsid},
+			#{num},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xuancai_goods SET 	
+			mainid = #{mainid.id},
+			goodsid = #{goodsid},
+			num = #{num},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xuancai_goods
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE mainid = #{mainid.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xuancai_goods SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE mainid = #{mainid.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XuancaiGoods" statementType="STATEMENT">
+		select * FROM xuancai_goods  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="getByGoodsid" resultType="XuancaiGoods" >
+		SELECT 
+			<include refid="xuancaiGoodsColumns"/>
+		FROM xuancai_goods a
+		<include refid="xuancaiGoodsJoins"/>
+		WHERE a.goodsid = #{goodsid}
+	</select>
+	
+	<update id="saveSq">
+		UPDATE xuancai_goods SET 	
+			kcsl = djsl,
+			sqsj=now()
+		WHERE id = #{id}
+	</update>
+</mapper>

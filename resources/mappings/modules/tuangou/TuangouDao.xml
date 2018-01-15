@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.tuangou.dao.TuangouDao">
+    
+	<sql id="tuangouColumns">
+		a.id AS "id",
+		a.guizename AS "guizename",
+		a.guizecontent AS "guizecontent",
+		a.ison AS "ison",
+		a.fbsj AS "fbsj",
+		a.beginsj AS "beginsj",
+		a.endsj AS "endsj",
+		a.istip AS "istip",
+		a.tiptype AS "tiptype",
+		a.minnum AS "minnum",
+		a.maxnumperson AS "maxnumperson",
+		a.istimetip AS "istimetip",
+		a.initsellnum AS "initsellnum",
+		a.goodsid AS "goods.id",
+		(SELECT name FROM goods WHERE id = a.goodsid) AS "goodsName", 
+		(SELECT guige FROM goods WHERE id = a.goodsid) AS "goodsguige",
+		a.tgzdsl AS "tgzdsl",
+		a.qituanprice AS "qituanprice",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		goods.name AS "goods.name"
+	</sql>
+	
+	<sql id="tuangouJoins">
+		LEFT JOIN goods goods ON goods.id = a.goodsid
+	</sql>
+	
+    
+	<select id="get" resultType="Tuangou" >
+		SELECT 
+			<include refid="tuangouColumns"/>
+		FROM tuangou a
+		<include refid="tuangouJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Tuangou" >
+		SELECT 
+			<include refid="tuangouColumns"/>
+		FROM tuangou a
+		<include refid="tuangouJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="guizename != null and guizename != ''">
+				AND a.guizename LIKE 
+					<if test="dbName == 'oracle'">'%'||#{guizename}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{guizename}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{guizename},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findTuangouList" resultType="Tuangou" >
+		SELECT 
+			<include refid="tuangouColumns"/>
+		FROM tuangou a
+		<include refid="tuangouJoins"/>
+		<where>
+			a.endsj is not null
+			and UNIX_TIMESTAMP(now()) >= UNIX_TIMESTAMP(a.endsj)
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="Tuangou" >
+		SELECT 
+			<include refid="tuangouColumns"/>
+		FROM tuangou a
+		<include refid="tuangouJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tuangou(
+			id,
+			guizename,
+			guizecontent,
+			ison,
+			fbsj,
+			beginsj,
+			endsj,
+			istip,
+			tiptype,
+			minnum,
+			maxnumperson,
+			istimetip,
+			initsellnum,
+			goodsid,
+			tgzdsl,
+			qituanprice,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{guizename},
+			#{guizecontent},
+			#{ison},
+			#{fbsj},
+			#{beginsj},
+			#{endsj},
+			#{istip},
+			#{tiptype},
+			#{minnum},
+			#{maxnumperson},
+			#{istimetip},
+			#{initsellnum},
+			#{goods.id},
+			#{tgzdsl},
+			#{qituanprice},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tuangou SET 	
+			guizename = #{guizename},
+			guizecontent = #{guizecontent},
+			ison = #{ison},
+			fbsj = #{fbsj},
+			beginsj = #{beginsj},
+			endsj = #{endsj},
+			istip = #{istip},
+			tiptype = #{tiptype},
+			minnum = #{minnum},
+			maxnumperson = #{maxnumperson},
+			istimetip = #{istimetip},
+			initsellnum = #{initsellnum},
+			goodsid = #{goods.id},
+			tgzdsl = #{tgzdsl},
+			qituanprice = #{qituanprice},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM tuangou
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE tuangou SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Tuangou" statementType="STATEMENT">
+		select * FROM tuangou  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findListBygoods" resultType="Goods">
+		SELECT 
+			*
+		FROM goods a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="ison != null and ison != ''">
+				AND a.ison = #{ison}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+				<if test="dbName == 'oracle'">#{name}||'%'</if>
+				<if test="dbName == 'mssql'">#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

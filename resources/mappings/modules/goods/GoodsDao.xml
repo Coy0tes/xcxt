@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.goods.dao.GoodsDao">
+    
+	<sql id="goodsColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.category AS "category",
+		a.description AS "description",
+		a.imgurl AS "imgurl",
+		a.guige AS "guige",
+		a.ison AS "ison",
+		a.contents AS "contents",
+		a.price AS "price",
+		a.xsprice AS "xsprice",
+		case when a.checkreport is not null AND LENGTH(a.checkreport)>0 then 1 else 0 end AS "ischeckreport",
+		a.checkreport AS "checkreport",
+		a.sort AS "sort",
+		a.fxtclx AS "fxtclx",
+		a.fxtcbl AS "fxtcbl",
+		a.fxtcje AS "fxtcje",
+		a.kcsl AS "kcsl",
+		a.djkc AS "djkc",
+		(SELECT name FROM sys_user WHERE id = a.create_by) AS "adminname",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="goodsJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="Goods" >
+		SELECT 
+			<include refid="goodsColumns"/>
+		FROM goods a
+		<include refid="goodsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Goods" >
+		SELECT 
+			<include refid="goodsColumns"/>
+		FROM goods a
+		<include refid="goodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			
+			<if test="ison!=null and ison!=''">
+				AND a.ison = #{ison}
+			</if>
+			<if test="id!=null and id!=''">
+				AND a.id = #{id}
+			</if>
+			
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			
+			<if test="guige != null and guige != ''">
+				AND a.guige = #{guige}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.name ASC, a.guige ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Goods" >
+		SELECT 
+			<include refid="goodsColumns"/>
+		FROM goods a
+		<include refid="goodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO goods(
+			id,
+			name,
+			category,
+			description,
+			imgurl,
+			guige,
+			ison,
+			contents,
+			price,
+			xsprice,
+			checkreport,
+			sort,
+			fxtclx,
+			fxtcbl,
+			fxtcje,
+			kcsl,
+			djkc,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{category},
+			#{description},
+			#{imgurl},
+			#{guige},
+			#{ison},
+			#{contents},
+			#{price},
+			#{xsprice},
+			#{checkreport},
+			#{sort},
+			#{fxtclx},
+			#{fxtcbl},
+			#{fxtcje},
+			#{kcsl},
+			#{djkc},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE goods SET 	
+			name = #{name},
+			category = #{category},
+			description = #{description},
+			imgurl = #{imgurl},
+			guige = #{guige},
+			ison = #{ison},
+			kcsl = #{kcsl},
+			djkc = #{djkc},
+			contents = #{contents},
+			price = #{price},
+			xsprice = #{xsprice},
+			checkreport = #{checkreport},
+			sort = #{sort},
+			fxtclx = #{fxtclx},
+			fxtcbl = #{fxtcbl},
+			fxtcje = #{fxtcje},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="fxtcSave">
+		UPDATE goods SET 	
+			fxtclx = #{fxtclx},
+			fxtcbl = #{fxtcbl},
+			fxtcje = #{fxtcje}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateCard">
+		UPDATE goods SET 	
+			djkc = djkc - #{djkc}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="saveZuoFei">
+		UPDATE goods SET 	
+			kcsl = kcsl + #{kcsl},
+			djkc = djkc - #{djkc}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM goods
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE goods SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Goods" statementType="STATEMENT">
+		select * FROM goods  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

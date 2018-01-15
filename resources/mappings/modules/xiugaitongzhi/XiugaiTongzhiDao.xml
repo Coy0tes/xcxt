@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xiugaitongzhi.dao.XiugaiTongzhiDao">
+    
+	<sql id="xiugaiTongzhiColumns">
+		a.id AS "id",
+		m.name AS "wxopenid",
+		a.mobileold AS "mobileold",
+		a.mobilenew AS "mobilenew",
+		a.status AS "status",
+		a.create_by AS "createBy.id",
+		a.update_by AS "updateBy.id",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remarkes AS "remarkes",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="xiugaiTongzhiJoins">
+		LEFT JOIN member m 
+		ON m.wxopenid = a.wxopenid
+	</sql>
+	
+    
+	<select id="get" resultType="XiugaiTongzhi" >
+		SELECT 
+			<include refid="xiugaiTongzhiColumns"/>
+		FROM xiugai_tongzhi a
+		<include refid="xiugaiTongzhiJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XiugaiTongzhi" >
+		SELECT 
+			<include refid="xiugaiTongzhiColumns"/>
+		FROM xiugai_tongzhi a
+		<include refid="xiugaiTongzhiJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XiugaiTongzhi" >
+		SELECT 
+			<include refid="xiugaiTongzhiColumns"/>
+		FROM xiugai_tongzhi a
+		<include refid="xiugaiTongzhiJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<update id="saveStatus">
+		UPDATE xiugai_tongzhi SET 	
+			status = #{status}
+		WHERE id = #{id}
+	</update>
+	
+	<insert id="insert">
+		INSERT INTO xiugai_tongzhi(
+			id,
+			wxopenid,
+			mobileold,
+			mobilenew,
+			status,
+			create_by,
+			update_by,
+			create_date,
+			update_date,
+			remarkes,
+			del_flag
+		) VALUES (
+			#{id},
+			#{wxopenid},
+			#{mobileold},
+			#{mobilenew},
+			#{status},
+			#{createBy.id},
+			#{updateBy.id},
+			#{createDate},
+			#{updateDate},
+			#{remarkes},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xiugai_tongzhi SET 	
+			wxopenid = #{wxopenid},
+			mobileold = #{mobileold},
+			mobilenew = #{mobilenew},
+			status = #{status},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarkes = #{remarkes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xiugai_tongzhi
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xiugai_tongzhi SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XiugaiTongzhi" statementType="STATEMENT">
+		select * FROM xiugai_tongzhi  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

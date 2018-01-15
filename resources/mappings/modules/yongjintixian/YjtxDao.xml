@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.yongjintixian.dao.YjtxDao">
+    
+	<sql id="yjtxColumns">
+		a.id AS "id",
+		(SELECT name FROM member WHERE wxopenid = a.wxopenid) AS "wxname",
+		a.wxopenid AS "wxopenid",
+		a.jine AS "jine",
+		a.status AS "status",
+		a.sdate AS "sdate",
+		a.clzt AS "clzt",
+		a.clremark AS "clremark",
+		a.cldate AS "cldate",
+		a.bank AS "bank",
+		a.cardid AS "cardid",
+		a.username AS "username",
+		a.mobile AS "mobile",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="yjtxJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="Yjtx" >
+		SELECT 
+			<include refid="yjtxColumns"/>
+		FROM yjtx a
+		<include refid="yjtxJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Yjtx" >
+		SELECT 
+			<include refid="yjtxColumns"/>
+		FROM yjtx a
+		<include refid="yjtxJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Yjtx" >
+		SELECT 
+			<include refid="yjtxColumns"/>
+		FROM yjtx a
+		<include refid="yjtxJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO yjtx(
+			id,
+			wxopenid,
+			jine,
+			status,
+			sdate,
+			clzt,
+			clremark,
+			cldate,
+			bank,
+			cardid,
+			username,
+			mobile,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{wxopenid},
+			#{jine},
+			#{status},
+			#{sdate},
+			#{clzt},
+			#{clremark},
+			#{cldate},
+			#{bank},
+			#{cardid},
+			#{username},
+			#{mobile},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE yjtx SET 	
+			wxopenid = #{wxopenid},
+			jine = #{jine},
+			status = #{status},
+			sdate = #{sdate},
+			clzt = #{clzt},
+			clremark = #{clremark},
+			cldate = now(),
+			bank = #{bank},
+			cardid = #{cardid},
+			username = #{username},
+			mobile = #{mobile},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM yjtx
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE yjtx SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Yjtx" statementType="STATEMENT">
+		select * FROM yjtx  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

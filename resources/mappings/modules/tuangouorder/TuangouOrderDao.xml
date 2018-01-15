@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.tuangouorder.dao.TuangouOrderDao">
+    
+	<sql id="tuangouOrderColumns">
+		a.id AS "id",
+		a.tuangouid AS "tuangou.id",
+		tuangou.guizename AS "tuangouname",
+		a.ddh AS "ddh",
+		a.memberid AS "memberid",
+		(SELECT case when name is not null AND LENGTH(NAME)>0 then name else nickname end from member where id = a.memberid ) AS "membername",
+		a.num AS "num",
+		a.sfprice AS "sfprice",
+		a.status AS "status",
+		a.shrprovince AS "shrprovince",
+		a.shrcity AS "shrcity",
+		a.shrcounty AS "shrcounty",
+		a.shraddress AS "shraddress",
+		a.shrname AS "shrname",
+		a.lxdh AS "lxdh",
+		a.kdgs AS "kdgs",
+		a.wldh AS "wldh",
+		a.zuofeireason AS "zuofeireason",
+		a.zuofeitime AS "zuofeitime",
+		a.sftk AS "sftk",
+		a.tkje AS "tkje",
+		a.principal AS "principal",
+		a.qxzt AS "qxzt",
+		(SELECT name from sys_user WHERE id = a.principal) AS "principal1",
+		a.flag AS "flag",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.fahuotime AS "fahuotime",
+		member.mobile as "membermobile"
+	</sql>
+	
+	<sql id="tuangouOrderJoins">
+		left join tuangou on a.tuangouid = tuangou.id
+		left join member on a.memberid = member.id
+	</sql>
+	
+    
+	<select id="get" resultType="TuangouOrder" >
+		SELECT 
+			<include refid="tuangouOrderColumns"/>
+		FROM tuangou_order a
+		<include refid="tuangouOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TuangouOrder" >
+		SELECT 
+			<include refid="tuangouOrderColumns"/>
+		FROM tuangou_order a
+		<include refid="tuangouOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="ddh != null and ddh != ''">
+				AND a.ddh = #{ddh}
+			</if>
+			<if test="memberid != null and memberid != ''">
+				AND a.memberid = #{memberid}
+			</if>
+			<if test="tuangou != null and tuangou != '' and tuangou.id != null and tuangou.id != ''">
+				AND a.tuangouid = #{tuangou.id}
+			</if>
+			<if test="flag != null and flag != '' and flag == '0'.toString() ">
+				AND a.ddh != '000000000000000'
+			</if>
+			<if test="flag != null and flag != '' and flag == '1'.toString() ">
+				AND a.ddh = '000000000000000'
+			</if>
+			<if test="tuangou != null and tuangou != '' and tuangou.guizename != null and tuangou.guizename != ''">
+				AND tuangou.guizename like concat('%',#{tuangou.guizename},'%')
+			</if>
+			<if test="membermobile != null and membermobile != ''">
+				AND member.mobile like concat('%',#{membermobile},'%')
+			</if>
+			<if test="membername != null and membername != ''">
+				AND (member.name like  concat('%',#{membername},'%') or member.nickname like  concat('%',#{membername},'%'))
+			</if>
+			<if test="lxdh != null and lxdh != ''">
+				AND a.lxdh like concat('%',#{lxdh},'%')
+			</if>
+			<if test="shrname != null and shrname != ''">
+				AND a.shrname like concat('%',#{shrname},'%')
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i') &lt;= #{endTime}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status =  #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TuangouOrder" >
+		SELECT 
+			<include refid="tuangouOrderColumns"/>
+		FROM tuangou_order a
+		<include refid="tuangouOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.ddh DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findRealList" resultType="TuangouOrder" >
+		SELECT 
+			<include refid="tuangouOrderColumns"/>
+		FROM tuangou_order a
+		<include refid="tuangouOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and a.ddh != '000000000000000'
+			<if test="tuangou != null and tuangou != '' and tuangou.id != null and tuangou.id != ''">
+				AND a.tuangouid = #{tuangou.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tuangou_order(
+			id,
+			tuangouid,
+			ddh,
+			memberid,
+			num,
+			sfprice,
+			status,
+			shrprovince,
+			shrcity,
+			shrcounty,
+			shraddress,
+			shrname,
+			lxdh,
+			kdgs,
+			wldh,
+			zuofeireason,
+			zuofeitime,
+			sftk,
+			tkje,
+			principal,
+			qxzt,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			fahuotime,
+			flag
+		) VALUES (
+			#{id},
+			#{tuangou.id},
+			#{ddh},
+			#{memberid},
+			#{num},
+			#{sfprice},
+			#{status},
+			#{shrprovince},
+			#{shrcity},
+			#{shrcounty},
+			#{shraddress},
+			#{shrname},
+			#{lxdh},
+			#{kdgs},
+			#{wldh},
+			#{zuofeireason},
+			#{zuofeitime},
+			#{sftk},
+			#{tkje},
+			#{principal},
+			#{qxzt},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{fahuotime},
+			#{flag}
+		)
+	</insert>
+	
+	<insert id="addRobotSave">
+		INSERT INTO tuangou_order(
+			id,
+			tuangouid,
+			ddh,
+			memberid,
+			flag,
+			del_flag
+		) VALUES (
+			#{id},
+			#{tuangou.id},
+			#{ddh},
+			#{memberid},
+			#{flag},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tuangou_order SET 	
+			tuangouid = #{tuangou.id},
+			ddh = #{ddh},
+			memberid = #{memberid},
+			num = #{num},
+			sfprice = #{sfprice},
+			status = #{status},
+			shrprovince = #{shrprovince},
+			shrcity = #{shrcity},
+			shrcounty = #{shrcounty},
+			shraddress = #{shraddress},
+			shrname = #{shrname},
+			lxdh = #{lxdh},
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			zuofeireason = #{zuofeireason},
+			zuofeitime = #{zuofeitime},
+			sftk = #{sftk},
+			tkje = #{tkje},
+			principal = #{principal},
+			qxzt = #{qxzt},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			fahuotime = #{fahuotime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="up">
+		UPDATE tuangou_order SET 	
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			status = #{status},
+			fahuotime = #{fahuotime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="quxiaoSave">
+		UPDATE tuangou_order SET
+			status = #{status},
+			zuofeireason = #{zuofeireason},
+			zuofeitime = #{zuofeitime},
+			sftk = #{sftk},
+			tkje = #{tkje},
+			principal = #{principal},
+			qxzt = #{qxzt}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="saveFaHuo">
+		UPDATE tuangou_order SET 	
+			status = #{status},
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			fahuotime = now()
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM tuangou_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE tuangou_order SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="TuangouOrder" statementType="STATEMENT">
+		select * FROM tuangou_order  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

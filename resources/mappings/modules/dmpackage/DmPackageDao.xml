@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.dmpackage.dao.DmPackageDao">
+    
+	<sql id="dmPackageColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.imgurl AS "imgurl",
+		a.pscs AS "pscs",
+		a.xcsl AS "xcsl",
+		a.status AS "status",
+		a.ison AS "ison",
+		a.price AS "price",
+		a.xsprice AS "xsprice",
+		a.contents AS "contents",
+		a.fxtclx AS "fxtclx",
+		a.fxtcbl AS "fxtcbl",
+		a.fxtcje AS "fxtcje",
+		a.danshuang AS "danshuang",
+		a.xszt AS "xszt",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="dmPackageJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="DmPackage" >
+		SELECT 
+			<include refid="dmPackageColumns"/>
+		FROM dm_package a
+		<include refid="dmPackageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	
+	<select id="findNoEditList" resultType="DmPackage">
+		SELECT 
+		<include refid="dmPackageColumns"/>
+ 		FROM dm_package a 
+			WHERE EXISTS(
+		SELECT 1 FROM dm_card c WHERE a.id = c.packageid and c.status != '2')
+			AND a.id = #{id}
+			AND a.status = '1'
+	</select>
+	
+	
+	<select id="findList" resultType="DmPackage" >
+		SELECT 
+			<include refid="dmPackageColumns"/>
+		FROM dm_package a
+		<include refid="dmPackageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="ison != null and ison != ''">
+				AND a.ison = "1"
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = "1"
+			</if>
+			<if test="xszt != null and xszt != ''">
+				AND a.xszt = "1"
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.xszt DESC, a.create_date DESC 
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findListCard" resultType="DmPackage" >
+		SELECT 
+			a.id AS "id",
+			concat(NAME,' | ',	CASE WHEN danshuang = '0' THEN '双配/周' ELSE	'单配/周'	END) AS "name",
+			a.imgurl AS "imgurl",
+			a.pscs AS "pscs",
+			a.xcsl AS "xcsl",
+			a.status AS "status",
+			a.ison AS "ison",
+			a.price AS "price",
+			a.xsprice AS "xsprice",
+			a.contents AS "contents",
+			a.fxtclx AS "fxtclx",
+			a.fxtcbl AS "fxtcbl",
+			a.fxtcje AS "fxtcje",
+			a.danshuang AS "danshuang",
+			a.xszt AS "xszt",
+			a.create_by AS "createBy.id",
+			a.create_date AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_date AS "updateDate",
+			a.remarks AS "remarks",
+			a.del_flag AS "delFlag"
+			FROM dm_package a
+		<include refid="dmPackageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="ison != null and ison != ''">
+				AND a.ison = "1"
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = "1"
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DmPackage" >
+		SELECT 
+			<include refid="dmPackageColumns"/>
+		FROM dm_package a
+		<include refid="dmPackageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO dm_package(
+			id,
+			name,
+			imgurl,
+			pscs,
+			xcsl,
+			status,
+			ison,
+			price,
+			xsprice,
+			contents,
+			fxtclx,
+			fxtcbl,
+			fxtcje,
+			danshuang,
+			xszt,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{imgurl},
+			#{pscs},
+			#{xcsl},
+			#{status},
+			#{ison},
+			#{price},
+			#{xsprice},
+			#{contents},
+			#{fxtclx},
+			#{fxtcbl},
+			#{fxtcje},
+			#{danshuang},
+			#{xszt},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE dm_package SET 	
+			name = #{name},
+			imgurl = #{imgurl},
+			pscs = #{pscs},
+			xcsl = #{xcsl},
+			status = #{status},
+			ison = #{ison},
+			price = #{price},
+			xsprice = #{xsprice},
+			contents = #{contents},
+			fxtclx = #{fxtclx},
+			fxtcbl = #{fxtcbl},
+			fxtcje = #{fxtcje},
+			danshuang = #{danshuang},
+			xszt = #{xszt},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="hasCardSave">
+		UPDATE dm_package SET 
+			name = #{name},
+			imgurl = #{imgurl},
+			price = #{price},
+			xsprice = #{xsprice},
+			contents = #{contents},
+			fxtclx = #{fxtclx},
+			fxtcbl = #{fxtcbl},
+			fxtcje = #{fxtcje}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM dm_package
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE dm_package SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DmPackage" statementType="STATEMENT">
+		select * FROM dm_package  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

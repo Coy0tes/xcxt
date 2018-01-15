@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.goodsorder.dao.GoodsOrderDao">
+    
+	<sql id="goodsOrderColumns">
+		a.id AS "id",
+		a.ddh AS "ddh",
+		a.cardid AS "cardid",
+		(SELECT cardid FROM dm_card WHERE id = a.cardid) AS cardName,
+		a.memberid AS "memberid",
+		(SELECT case when name is not null AND LENGTH(NAME)>0 then name else nickname end from member where id = a.memberid ) AS memberName,
+		a.num AS "num",
+		a.status AS "status",
+		a.shrprovince AS "shrprovince",
+		a.shrcity AS "shrcity",
+		a.shrcounty AS "shrcounty",
+		a.shraddress AS "shraddress",
+		a.shrname AS "shrname",
+		a.lxdh AS "lxdh",
+		a.kdgs AS "kdgs",
+		a.wldh AS "wldh",
+		a.zuofeireason AS "zuofeireason",
+		a.principal AS "principal",
+		a.fahuotime AS "fahuotime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		member.mobile as "membermobile"
+	</sql>
+	
+	<sql id="goodsOrderJoins">
+		left join member on a.memberid=member.id
+	</sql>
+	
+    
+	<select id="get" resultType="GoodsOrder" >
+		SELECT 
+			<include refid="goodsOrderColumns"/>
+		FROM goods_order a
+		<include refid="goodsOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getByDdh" resultType="GoodsOrder" >
+		SELECT 
+			<include refid="goodsOrderColumns"/>
+		FROM goods_order a
+		<include refid="goodsOrderJoins"/>
+		WHERE a.ddh = #{ddh}
+	</select>
+	
+	<select id="findList" resultType="GoodsOrder" >
+		SELECT 
+			<include refid="goodsOrderColumns"/>
+		FROM goods_order a
+		<include refid="goodsOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="cardid != null and cardid != ''">
+				AND a.cardid = #{cardid}
+			</if>
+			<if test="ddh != null and ddh != ''">
+				AND a.ddh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ddh}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ddh}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ddh},'%')</if>
+			</if>
+			<if test="cardid != null and cardid != ''">
+				AND a.cardid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{cardid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{cardid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{cardid},'%')</if>
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="shrname != null and shrname != ''">
+				AND a.shrname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shrname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shrname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shrname},'%')</if>
+			</if>
+			<if test="lxdh != null and lxdh != ''">
+				AND a.lxdh like  concat('%',#{lxdh},'%')
+			</if>
+			<if test="membermobile != null and membermobile != ''">
+				AND member.mobile like  concat('%',#{membermobile},'%')
+			</if>
+			<if test="memberName != null and memberName != ''">
+				AND (member.name like  concat('%',#{memberName},'%') or member.nickname like  concat('%',#{memberName},'%')) 
+			</if>
+			<if test="kdgs != null and kdgs != ''">
+				AND a.kdgs = #{kdgs}
+			</if>
+			<if test="wldh != null and wldh != ''">
+				AND a.wldh = #{wldh}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="begintime != null and begintime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i') &gt;= #{begintime}
+			</if>
+			<if test="endtime != null and endtime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i') &lt;= #{endtime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.ddh DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findTimesList" resultType="GoodsOrder">
+		SELECT 
+			*
+		FROM goods_order a 
+		<where>
+			AND a.status != '3' AND a.status != '4'
+			<if test="cardid != null and cardid != ''">
+				AND a.cardid = #{cardid}
+			</if>
+			<if test="begintime != null and begintime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d') &gt;= #{begintime}
+			</if>
+			<if test="endtime != null and endtime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d') &lt;= #{endtime}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findAllList" resultType="GoodsOrder" >
+		SELECT 
+			<include refid="goodsOrderColumns"/>
+		FROM goods_order a
+		<include refid="goodsOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO goods_order(
+			id,
+			ddh,
+			cardid,
+			memberid,
+			num,
+			status,
+			shrprovince,
+			shrcity,
+			shrcounty,
+			shraddress,
+			shrname,
+			lxdh,
+			kdgs,
+			wldh,
+			zuofeireason,
+			zuofeitime,
+			principal,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{ddh},
+			#{cardid},
+			#{memberid},
+			#{num},
+			#{status},
+			#{shrprovince},
+			#{shrcity},
+			#{shrcounty},
+			#{shraddress},
+			#{shrname},
+			#{lxdh},
+			#{kdgs},
+			#{wldh},
+			#{zuofeireason},
+			#{zuofeitime},
+			#{principal},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE goods_order SET 	
+			ddh = #{ddh},
+			cardid = #{cardid},
+			memberid = #{memberid},
+			num = #{num},
+			status = #{status},
+			shrprovince = #{shrprovince},
+			shrcity = #{shrcity},
+			shrcounty = #{shrcounty},
+			shraddress = #{shraddress},
+			shrname = #{shrname},
+			lxdh = #{lxdh},
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			zuofeireason = #{zuofeireason},
+			zuofeitime = #{zuofeitime},
+			principal = #{principal},
+			fahuotime = #{fahuotime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="saveFa">
+		UPDATE goods_order SET 	
+			status = #{status},
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			fahuotime = now()
+		WHERE id = #{id}
+	</update>
+	
+	<update id="saveZuoFei">
+		UPDATE goods_order SET 	
+			status = #{status},
+			zuofeireason = #{zuofeireason},
+			zuofeitime = now(),
+			principal = #{principal}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM goods_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE goods_order SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="GoodsOrder" statementType="STATEMENT">
+		select * FROM goods_order  where ${propertyName} = '${value}'
+	</select>
+	
+	<!-- 批量发货，只更新快递公司跟物流单号 -->
+	<select id="up">
+		UPDATE goods_order
+		SET 
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			status = #{status},
+			fahuotime = #{fahuotime}
+		WHERE
+		id = #{id}
+	</select>
+	
+	<select id="findListToday" resultType="GoodsOrder" >
+		SELECT 
+			a.id AS "id",
+			a.ddh AS "ddh",
+			a.shrname AS "shrname",
+			a.lxdh AS "lxdh"
+		FROM goods_order a
+		<include refid="goodsOrderJoins"/>
+		<where>
+			status = '0'
+			<if test="begintime != null and begintime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d') &gt;= #{begintime}
+			</if>
+			<if test="endtime != null and endtime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d') &lt;= #{endtime}
+			</if>
+		</where>
+		<choose>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+</mapper>

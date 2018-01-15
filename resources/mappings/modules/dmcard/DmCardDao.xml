@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.dmcard.dao.DmCardDao">
+    
+	<sql id="dmCardColumns">
+		a.id AS "id",
+		a.cardid AS "cardid",
+		a.packageid AS "packageid",
+		a.memberid AS "member.id",
+		a.yewuid AS "dmYewu.id",
+		(SELECT name FROM dm_yewu WHERE id = a.yewuid) AS "dmyewuname",
+		a.cardorderid AS "cardOrderId",
+		(SELECT case when name is not null AND LENGTH(NAME)>0 then name else nickname end from member where id = a.memberid ) AS "memberName",
+		(SELECT concat(name,' | ',case when danshuang='0' then '双配/周' else '单配/周' end) FROM dm_package WHERE id = a.packageid) AS "packageName",
+		(SELECT danshuang from dm_package where id = a.packageid ) AS "packagedanshuang",
+		a.name AS "name",
+		a.status AS "status",
+		a.fxtclx AS "fxtclx",
+		a.fxtcbl AS "fxtcbl",
+		a.fxtcje AS "fxtcje",
+		a.contents AS "contents",
+		a.numuse AS "numuse",
+		a.numshengyu AS "numshengyu",
+		a.numremarks AS "numremarks",
+		a.numadmin AS "numadmin",
+		(SELECT name FROM sys_user WHERE id = a.numadmin) AS "numadminname",
+		a.numtime AS "numtime",
+		a.numpscs AS "numpscs",
+		a.activetime AS "activetime",
+		a.price AS "price",
+		a.tcsclx AS "tcsclx",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		member.mobile AS "membermobile"
+	</sql>
+	
+	
+	
+	<sql id="dmCardJoins">
+		LEFT JOIN member member ON member.id = a.memberid
+	</sql>
+	
+	
+	<select id="get" resultType="DmCard" >
+		SELECT 
+			<include refid="dmCardColumns"/>
+		FROM dm_card a
+		<include refid="dmCardJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findListCard" resultType="DmCard" >
+		SELECT 
+			a.id AS "id",
+			a.cardid AS "cardid",
+			a.packageid AS "packageid",
+			a.memberid AS "member.id",
+			a.cardorderid AS "cardOrderId",
+			(SELECT case when name is not null then name else nickname end from member where id = a.memberid ) AS "memberName",
+			(SELECT concat(name,' | ',case when danshuang='0' then '双配/周' else '单配/周' end) from dm_package where id = a.packageid ) AS "packageName",
+			(SELECT danshuang from dm_package where id = a.packageid ) AS "packagedanshuang",
+			a.name AS "name",
+			a.status AS "status",
+			<!-- (SELECT fxtclx from dm_package where id = a.packageid ) AS "ffxtclx",
+			(SELECT fxtcbl from dm_package where id = a.packageid ) AS "ffxtcbl",
+			(SELECT fxtcje from dm_package where id = a.packageid ) AS "ffxtcje", -->
+			a.fxtclx AS "fxtclx",
+			a.fxtcbl AS "fxtcbl",
+			a.fxtcje AS "fxtcje",
+			a.contents AS "contents",
+			a.numuse AS "numuse",
+			a.numshengyu AS "numshengyu",
+			a.numremarks AS "numremarks",
+			a.numadmin AS "numadmin",
+			(SELECT name FROM sys_user WHERE id = a.numadmin) AS "numadminname",
+			a.numtime AS "numtime",
+			(SELECT pscs FROM dm_package WHERE id = a.packageid) AS "numpscs",
+			a.activetime AS "activetime",
+			a.price AS "price",
+			a.tcsclx AS "tcsclx",
+			a.create_by AS "createBy.id",
+			a.create_date AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_date AS "updateDate",
+			a.remarks AS "remarks",
+			a.del_flag AS "delFlag",
+			member.mobile AS "membermobile"
+		FROM dm_card a
+		<include refid="dmCardJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="tcsclx != null and tcsclx !=''">
+				AND a.tcsclx = #{tcsclx}
+			</if>
+			<if test="status != null and status !=''">
+				AND a.status = #{status}
+			</if>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="packageid != null and packageid != ''" >
+				AND a.packageid = #{packageid}
+			</if>
+			<if test="packagedanshuang != null and packagedanshuang != ''" >
+				AND exists (select 1 from dm_package where id=a.packageid and danshuang=#{packagedanshuang})
+			</if>
+			<if test="member != null and member != '' and member.id != null and member.id != ''">
+				AND a.memberid = #{member.id}			
+			</if>
+			<if test="cardid != null and cardid != ''">
+				AND a.cardid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{cardid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{cardid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{cardid},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="memberName != null and memberName != ''">
+				AND member.name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{memberName},'%')</if>
+			</if>
+			<if test="membermobile != null and membermobile != ''">
+				AND member.mobile LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{membermobile},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.cardid DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findList" resultType="DmCard" >
+		SELECT 
+			<include refid="dmCardColumns"/>
+		FROM dm_card a
+		<include refid="dmCardJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="tcsclx != null and tcsclx !=''">
+				AND a.tcsclx = #{tcsclx}
+			</if>
+			<if test="status != null and status !=''">
+				AND a.status = #{status}
+			</if>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="packageid != null and packageid != ''" >
+				AND a.packageid = #{packageid}
+			</if>
+			<if test="packagedanshuang != null and packagedanshuang != ''" >
+				AND exists (select 1 from dm_package where id=a.packageid and danshuang=#{packagedanshuang})
+			</if>
+			<if test="member != null and member != '' and member.id != null and member.id != ''">
+				AND a.memberid = #{member.id}			
+			</if>
+			<if test="cardid != null and cardid != ''">
+				AND a.cardid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{cardid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{cardid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{cardid},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="cardOrderId != null and cardOrderId != ''" >
+				AND a.cardorderid = #{cardOrderId}
+			</if>
+			<if test="memberName != null and memberName != ''">
+				AND member.name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{memberName},'%')</if>
+			</if>
+			<if test="membermobile != null and membermobile != ''">
+				AND member.mobile LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{membermobile},'%')</if>
+			</if>
+			<!-- <if test="startTime != null and startTime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d') &lt;= #{endTime}
+			</if> -->
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.cardid DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DmCard" >
+		SELECT 
+			<include refid="dmCardColumns"/>
+		FROM dm_card a
+		<include refid="dmCardJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 导出获得套餐卡号 -->
+	<select id="getCardOrderId" resultType="DmCard" >
+		SELECT 
+			cardid
+		FROM dm_card a where a.cardorderid = #{cardOrderid}
+		
+	</select>
+	
+	<!-- 导出单独处理，可规定导出规定时间范围的套餐卡使用次数 -->
+	<select id="findTimesList" resultType="DmCard">
+		SELECT 
+			<include refid="dmCardColumns"/>
+		FROM dm_card a
+		<include refid="dmCardJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="status != null and status !=''">
+				AND a.status = #{status}
+			</if>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="packageid != null and packageid != ''" >
+				AND a.packageid = #{packageid}
+			</if>
+			<if test="packagedanshuang != null and packagedanshuang != ''" >
+				AND exists (select 1 from dm_package where id=a.packageid and danshuang=#{packagedanshuang})
+			</if>
+			<if test="member != null and member != '' and member.id != null and member.id != ''">
+				AND a.memberid = #{member.id}			
+			</if>
+			<if test="cardid != null and cardid != ''">
+				AND a.cardid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{cardid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{cardid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{cardid},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="cardOrderId != null and cardOrderId != ''" >
+				AND a.cardorderid = #{cardOrderId}
+			</if>
+			<if test="memberName != null and memberName != ''">
+				AND member.name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{memberName},'%')</if>
+			</if>
+			<if test="membermobile != null and membermobile != ''">
+				AND member.mobile LIKE 
+			<if test="dbName == 'mysql'">concat('%',#{membermobile},'%')</if>
+			</if>
+		</where>
+		
+	</select>
+	
+	<select id="hasCardSave" resultType="DmCard" >
+		SELECT 
+			<include refid="dmCardColumns"/>
+		FROM dm_card a
+		<include refid="dmCardJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="status != null and status != ''">
+				AND a.status != '2'
+			</if>
+			AND a.packageid = #{packageid}
+		</where>		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO dm_card(
+			id,
+			cardid,
+			packageid,
+			memberid,
+			yewuid,
+			cardorderid,
+			name,
+			status,
+			contents,
+			numpscs,
+			numuse,
+			numshengyu,
+			numremarks,
+			numadmin,
+			numtime,
+			fxtclx,
+			fxtcbl,
+			fxtcje,
+			activetime,
+			price,
+			tcsclx,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{cardid},
+			#{packageid},
+			#{member.id},
+			#{dmYewu.id},
+			#{cardOrderId},
+			#{name},
+			#{status},
+			#{contents},
+			#{numpscs},
+			#{numuse},
+			#{numshengyu},
+			#{numremarks},
+			#{numadmin},
+			#{numtime},
+			#{fxtclx},
+			#{fxtcbl},
+			#{fxtcje},
+			#{activetime},
+			#{price},
+			#{tcsclx},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE dm_card SET 	
+			cardid = #{cardid},
+			packageid = #{packageid},
+			memberid = #{member.id},
+			yewuid = #{dmYewu.id},
+			cardorderid = #{cardOrderId},
+			name = #{name},
+			status = #{status},
+			contents = #{contents},
+			numuse = #{numuse},
+			numshengyu = #{numshengyu},
+			numremarks = #{numremarks},
+			numadmin = #{numadmin},
+			numtime = #{numtime},
+			fxtclx = #{fxtclx},
+			fxtcbl = #{fxtcbl},
+			fxtcje = #{fxtcje},
+			activetime = #{activetime},
+			price = #{price},
+			tcsclx = #{tcsclx},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="saveZuoFei">
+		UPDATE dm_card SET
+			numshengyu = numshengyu + 1,
+			numuse = numuse - 1
+		WHERE id = #{id}
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM dm_card
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE dm_card SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DmCard" statementType="STATEMENT">
+		select * FROM dm_card  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findListBymember" resultType="Member">
+		SELECT 
+		    a.id,
+			concat(IFNULL(a.name, ""),' ',a.mobile) AS "name",
+			a.mobile AS "mobile",
+			a.nickname AS "nickname"
+		FROM member a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="mobile != null and mobile != ''">
+				AND a.mobile LIKE 
+				<if test="dbName == 'oracle'">#{mobile}||'%'</if>
+				<if test="dbName == 'mssql'">#{mobile}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{mobile},'%')</if>
+			</if>
+			AND a.mobile != ''
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="updatePlfp">
+		UPDATE dm_card SET 	
+			cardid = #{cardid},
+			packageid = #{packageid},
+			memberid = #{member.id},
+			cardorderid = #{cardOrderId},
+			name = #{name},
+			status = #{status},
+			contents = #{contents},
+			numuse = #{numuse},
+			numshengyu = #{numshengyu},
+			numremarks = #{numremarks},
+			numadmin = #{numadmin},
+			numtime = #{numtime},
+			fxtclx = #{fxtclx},
+			fxtcbl = #{fxtcbl},
+			fxtcje = #{fxtcje},
+			tcsclx = #{tcsclx},
+			activetime = #{activetime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</select>
+	
+</mapper>

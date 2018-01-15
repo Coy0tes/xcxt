@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.tuangoupackageorder.dao.TuangouPackageOrderDao">
+    
+	<sql id="tuangouPackageOrderColumns">
+		a.id AS "id",
+		a.tuangoupackageid AS "tuangoupackageid",
+		a.ddh AS "ddh",
+		a.memberid AS "memberid",
+		(SELECT case when name is not null AND LENGTH(NAME)>0 then name else nickname end from member where id = a.memberid ) AS "memberName",
+		(SELECT guizename FROM tuangou_package WHERE id = a.tuangoupackageid) AS "tuangouOrderName",
+		a.num AS "num",
+		a.sfprice AS "sfprice",
+		a.status AS "status",
+		a.shrprovince AS "shrprovince",
+		a.shrcity AS "shrcity",
+		a.shrcounty AS "shrcounty",
+		a.shraddress AS "shraddress",
+		a.shrname AS "shrname",
+		a.lxdh AS "lxdh",
+		a.kdgs AS "kdgs",
+		a.wldh AS "wldh",
+		a.fahuotime AS "fahuotime",
+		a.qxzt AS "qxzt",
+		a.zuofeireason AS "zuofeireason",
+		a.zuofeitime AS "zuofeitime",
+		a.sftk AS "sftk",
+		a.tkje AS "tkje",
+		a.principal AS "principal",
+		(SELECT name FROM sys_user WHERE id = a.principal) AS "principal1",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		m.mobile as "membermobile"
+	</sql>
+	
+	<sql id="tuangouPackageOrderJoins">
+		left join member m on a.memberid = m.id
+	</sql>
+	
+    
+	<select id="get" resultType="TuangouPackageOrder" >
+		SELECT 
+			<include refid="tuangouPackageOrderColumns"/>
+		FROM tuangou_package_order a
+		<include refid="tuangouPackageOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TuangouPackageOrder" >
+		SELECT 
+			<include refid="tuangouPackageOrderColumns"/>
+		FROM tuangou_package_order a
+		<include refid="tuangouPackageOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="ddh != null and ddh != ''">
+				AND a.ddh LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{ddh},'%')</if>
+			</if>
+			<if test="memberid != null and memberid != ''">
+				AND a.memberid = #{memberid}
+			</if>
+			<if test="shrname != null and shrname != ''">
+				AND a.shrname like concat('%',#{shrname},'%')
+			</if>
+			<if test="lxdh != null and lxdh != ''">
+				AND a.lxdh LIKE concat('%',#{lxdh},'%')
+			</if>
+			<if test="wldh != null and wldh != ''">
+				AND a.wldh LIKE concat('%',#{wldh},'%')
+			</if>
+			<if test="membermobile != null and membermobile != ''">
+				AND m.mobile like concat('%',#{membermobile},'%')
+			</if>
+			<if test="memberName != null and memberName != ''">
+				AND (m.name like  concat('%',#{memberName},'%') or m.nickname like  concat('%',#{memberName},'%'))
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i') &lt;= #{endTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.ddh DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<select id="findAllList" resultType="TuangouPackageOrder" >
+		SELECT 
+			<include refid="tuangouPackageOrderColumns"/>
+		FROM tuangou_package_order a
+		<include refid="tuangouPackageOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tuangou_package_order(
+			id,
+			tuangoupackageid,
+			ddh,
+			memberid,
+			num,
+			sfprice,
+			status,
+			shrprovince,
+			shrcity,
+			shrcounty,
+			shraddress,
+			shrname,
+			lxdh,
+			kdgs,
+			wldh,
+			fahuotime,
+			qxzt,
+			zuofeireason,
+			zuofeitime,
+			sftk,
+			tkje,
+			principal,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{tuangoupackageid},
+			#{ddh},
+			#{memberid},
+			#{num},
+			#{sfprice},
+			#{status},
+			#{shrprovince},
+			#{shrcity},
+			#{shrcounty},
+			#{shraddress},
+			#{shrname},
+			#{lxdh},
+			#{kdgs},
+			#{wldh},
+			#{fahuotime},
+			#{qxzt},
+			#{zuofeireason},
+			#{zuofeitime},
+			#{sftk},
+			#{tkje},
+			#{principal},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tuangou_package_order SET 	
+			tuangoupackageid = #{tuangoupackageid},
+			ddh = #{ddh},
+			memberid = #{memberid},
+			num = #{num},
+			sfprice = #{sfprice},
+			status = #{status},
+			shrprovince = #{shrprovince},
+			shrcity = #{shrcity},
+			shrcounty = #{shrcounty},
+			shraddress = #{shraddress},
+			shrname = #{shrname},
+			lxdh = #{lxdh},
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			fahuotime = #{fahuotime},
+			qxzt = #{qxzt},
+			zuofeireason = #{zuofeireason},
+			zuofeitime = #{zuofeitime},
+			sftk = #{sftk},
+			tkje = #{tkje},
+			principal = #{principal},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="zuofeiSave">
+		UPDATE tuangou_package_order SET 	
+			qxzt = #{qxzt},
+			zuofeireason = #{zuofeireason},
+			zuofeitime = now(),
+			status = #{status},
+			sftk = #{sftk},
+			tkje = #{tkje},
+			principal = #{principal}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM tuangou_package_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE tuangou_package_order SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="TuangouPackageOrder" statementType="STATEMENT">
+		select * FROM tuangou_package_order  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

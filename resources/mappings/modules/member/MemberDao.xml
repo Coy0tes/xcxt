@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.member.dao.MemberDao">
+    
+	<sql id="memberColumns">
+		a.id AS "id",
+		a.wxopenid AS "wxopenid",
+		a.mobile AS "mobile",
+		a.password AS "password",
+		case when a.name is not null AND LENGTH(a.name)>0 then a.name else a.nickname end AS "name",
+		a.tjrwxopenid AS "tjrwxopenid",
+		a.yongjin AS "yongjin",
+		a.yongjinytx AS "yongjinytx",
+		a.headimgurl AS "headimgurl",
+		a.nickname AS "nickname",
+		a.isPhone AS "isphone",
+		a.isWechat AS "isWechat",
+		a.gzTime AS "gzTime",
+		a.qxgzTime AS "qxgzTime",
+		a.birthday AS "birthday",
+		a.name AS "onlyname",
+		a.yewuid AS "yewuid",
+		(SELECT y.name FROM dm_yewu y WHERE y.id = a.yewuid) AS "yewuname",
+		a.fenxiaoquanxian AS "fenxiaoquanxian",
+		(select case when count(1)>0 then 1 else 0 end from dm_card where memberid=a.id) AS "packagemember",
+		CASE WHEN a.wxopenid IS NOT NULL AND LENGTH(a.wxopenid)>0 THEN 1 ELSE 0 END AS "islook",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="memberJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="Member" >
+		SELECT 
+			<include refid="memberColumns"/>
+		FROM member a
+		<include refid="memberJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getByWxopenid" resultType="Member" >
+		SELECT 
+			<include refid="memberColumns"/>
+		FROM member a
+		<include refid="memberJoins"/>
+		WHERE a.wxopenid = #{wxopenid}
+	</select>
+	
+	<select id="findList" resultType="Member" >
+		SELECT 
+			<include refid="memberColumns"/>
+		FROM member a
+		<include refid="memberJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="tjrwxopenid != null and tjrwxopenid != ''">
+				AND a.tjrwxopenid = #{tjrwxopenid}
+			</if>
+			<if test="wxopenid != null and wxopenid != ''">
+				AND a.wxopenid = #{wxopenid}
+			</if>
+			<if test="mobile != null and mobile != ''">
+				AND a.mobile LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mobile}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mobile}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mobile},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="nickname != null and nickname != ''">
+				AND a.nickname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{nickname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{nickname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{nickname},'%')</if>
+			</if>
+			<if test="isPhone != null and isPhone != ''">
+				AND a.isPhone = #{isPhone}
+			</if>
+			<if test="isWechat != null and isWechat != ''">
+				AND a.isWechat = #{isWechat}
+			</if>
+			AND mobile != ''
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findOnlyMobil" resultType="member">
+		SELECT mobile FROM member WHERE mobile = #{mobile} and id != #{id}
+	</select>
+	
+	<select id="findAllList" resultType="Member" >
+		SELECT 
+			<include refid="memberColumns"/>
+		FROM member a
+		<include refid="memberJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO member(
+			id,
+			wxopenid,
+			mobile,
+			password,
+			name,
+			tjrwxopenid,
+			yongjin,
+			yongjinytx,
+			headimgurl,
+			nickname,
+			isphone,
+			isWechat,
+			gzTime,
+			qxgzTime,
+			birthday,
+			yewuid,
+			fenxiaoquanxian,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{wxopenid},
+			#{mobile},
+			#{password},
+			#{name},
+			#{tjrwxopenid},
+			#{yongjin},
+			#{yongjinytx},
+			#{headimgurl},
+			#{nickname},
+			#{isPhone},
+			#{isWechat},
+			#{gzTime},
+			#{qxgzTime},
+			#{birthday},
+			#{yewuid},
+			#{fenxiaoquanxian},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE member SET 	
+			wxopenid = #{wxopenid},
+			mobile = #{mobile},
+			password = #{password},
+			name = #{name},
+			tjrwxopenid = #{tjrwxopenid},
+			yongjin = #{yongjin},
+			yongjinytx = #{yongjinytx},
+			headimgurl = #{headimgurl},
+			nickname = #{nickname},
+			isPhone = #{isPhone},
+			isWechat = #{isWechat},
+			gzTime = #{gzTime},
+			qxgzTime = #{qxgzTime},
+			birthday = #{birthday},
+			yewuid = #{yewuid},
+			fenxiaoquanxian = #{fenxiaoquanxian},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="phoneSave">
+		UPDATE member SET 	
+			isPhone = #{isPhone}
+		WHERE id = #{id}
+	</update>
+	<update id="wechatSave">
+		UPDATE member SET 	
+			isWechat = #{isWechat}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updatePhoneAll">
+		UPDATE member SET 	
+			isPhone = #{isPhone}
+	</update>
+	<update id="updateWechatAll">
+		UPDATE member SET 	
+			isWechat = #{isWechat}
+	</update>
+	
+	<update id="openQuanxianUpdate">
+		UPDATE member SET
+			fenxiaoquanxian = #{fenxiaoquanxian}
+			where id = #{id}
+	</update>
+	
+	<update id="closeQuanxianUpdate">
+		UPDATE member SET
+			fenxiaoquanxian = #{fenxiaoquanxian}
+			where id = #{id}
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM member
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE member SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="resetPassword">
+		UPDATE member SET 	
+			password = #{password}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Member" statementType="STATEMENT">
+		select * FROM member  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

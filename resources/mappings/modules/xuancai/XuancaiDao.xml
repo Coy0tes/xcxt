@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xuancai.dao.XuancaiDao">
+    
+	<sql id="xuancaiColumns">
+		a.id AS "id",
+		a.packageid AS "packageid",
+		(SELECT concat(name,' | ',case when danshuang='0' then '双配/周' else '单配/周' end) from dm_package where id = a.packageid ) AS "packageName",
+		a.begindate AS "begindate",
+		a.enddate AS "enddate",
+		a.title AS "title",
+		a.ison AS "ison",
+		a.tuijian AS "tuijian",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="xuancaiJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="Xuancai" >
+		SELECT 
+			<include refid="xuancaiColumns"/>
+		FROM xuancai a
+		<include refid="xuancaiJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Xuancai" >
+		SELECT 
+			<include refid="xuancaiColumns"/>
+		FROM xuancai a
+		<include refid="xuancaiJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="packageid != null and packageid != ''">
+				AND a.packageid = #{packageid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findPackageList" resultType="Xuancai">
+		select * from xuancai
+		<where>
+			<if test="packageid != null">
+				AND packageid = #{packageid}
+			</if>
+			<if test="id != null">
+				AND id != #{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findAllList" resultType="Xuancai" >
+		SELECT 
+			<include refid="xuancaiColumns"/>
+		FROM xuancai a
+		<include refid="xuancaiJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xuancai(
+			id,
+			packageid,
+			begindate,
+			enddate,
+			title,
+			ison,
+			tuijian,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{packageid},
+			#{begindate},
+			#{enddate},
+			#{title},
+			#{ison},
+			#{tuijian},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xuancai SET 	
+			packageid = #{packageid},
+			begindate = #{begindate},
+			enddate = #{enddate},
+			title = #{title},
+			ison = #{ison},
+			tuijian = #{tuijian},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateTuijianStatus">
+		UPDATE xuancai SET 	
+			tuijian = '0'
+		WHERE id != #{id}
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xuancai
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xuancai SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Xuancai" statementType="STATEMENT">
+		select * FROM xuancai  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

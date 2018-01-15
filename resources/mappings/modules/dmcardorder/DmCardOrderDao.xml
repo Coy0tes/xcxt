@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.dmcardorder.dao.DmCardOrderDao">
+    
+	<sql id="dmCardOrderColumns">
+		a.id AS "id",
+		a.ddh AS "ddh",
+		a.num AS "num",
+		a.gclx AS "gclx",
+		a.packageid AS "packageid",
+		(SELECT concat(name,' | ',case when danshuang='0' then '双配/周' else '单配/周' end) FROM dm_package WHERE id = a.packageid) AS "packageName",
+		a.memberid AS "member.id",
+		(SELECT case when name is not null AND LENGTH(NAME)>0 then name else nickname end from member where id = a.memberid ) AS "memberName",
+		a.status AS "status",
+		a.shrprovince AS "shrprovince",
+		a.shrcity AS "shrcity",
+		a.shrcounty AS "shrcounty",
+		a.shraddress AS "shraddress",
+		a.shrname AS "shrname",
+		a.lxdh AS "lxdh",
+		a.kdgs AS "kdgs",
+		a.wldh AS "wldh",
+		a.fahuotime AS "fahuotime",
+		CONCAT_WS(' ',a.shrprovince,a.shrcity,a.shrcounty,a.shraddress) AS "dizhi",
+		a.create_date AS "createTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		member.mobile AS "mobile",
+		member.name AS "member.name"
+	</sql>
+	
+	<sql id="dmCardOrderJoins">
+		LEFT JOIN member member ON member.id = a.memberid
+	</sql>
+	
+    
+	<select id="get" resultType="DmCardOrder" >
+		SELECT 
+			<include refid="dmCardOrderColumns"/>
+		FROM dm_card_order a
+		<include refid="dmCardOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DmCardOrder" >
+		SELECT 
+			<include refid="dmCardOrderColumns"/>
+		FROM dm_card_order a
+		<include refid="dmCardOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="ddh != null and ddh != ''">
+				AND a.ddh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ddh}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ddh}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ddh},'%')</if>
+			</if>
+			<if test="packageid != null and packageid != ''">
+				AND a.packageid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{packageid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{packageid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{packageid},'%')</if>
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="mobile != null and mobile != ''">
+				AND member.mobile like concat('%',#{mobile},'%')
+			</if>
+			<if test="memberName != null and memberName != ''">
+				AND (member.name like  concat('%',#{memberName},'%') or member.nickname like  concat('%',#{memberName},'%'))
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i') &lt;= #{endTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.ddh DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<select id="findAllList" resultType="DmCardOrder" >
+		SELECT 
+			<include refid="dmCardOrderColumns"/>
+		FROM dm_card_order a
+		<include refid="dmCardOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO dm_card_order(
+			id,
+			ddh,
+			num,
+			gclx,
+			packageid,
+			memberid,
+			status,
+			shrprovince,
+			shrcity,
+			shrcounty,
+			shraddress,
+			shrname,
+			lxdh,
+			kdgs,
+			wldh,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{ddh},
+			#{num},
+			#{gclx},
+			#{packageid},
+			#{member.id},
+			#{status},
+			#{shrprovince},
+			#{shrcity},
+			#{shrcounty},
+			#{shraddress},
+			#{shrname},
+			#{lxdh},
+			#{kdgs},
+			#{wldh},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE dm_card_order SET 	
+			ddh = #{ddh},
+			num = #{num},
+			gclx = #{gclx},
+			packageid = #{packageid},
+			memberid = #{member.id},
+			status = #{status},
+			shrprovince = #{shrprovince},
+			shrcity = #{shrcity},
+			shrcounty = #{shrcounty},
+			shraddress = #{shraddress},
+			shrname = #{shrname},
+			lxdh = #{lxdh},
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	<update id="up">
+		UPDATE dm_card_order SET 	
+			status = #{status},
+			kdgs = #{kdgs},
+			wldh = #{wldh},
+			fahuotime = #{fahuotime}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM dm_card_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE dm_card_order SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DmCardOrder" statementType="STATEMENT">
+		select * FROM dm_card_order  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findListBymember" resultType="Member">
+		SELECT 
+			*
+		FROM member a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+				<if test="dbName == 'oracle'">#{name}||'%'</if>
+				<if test="dbName == 'mssql'">#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+</mapper>
