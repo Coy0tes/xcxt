@@ -303,7 +303,11 @@
 					${member.nickname}
 				</td>
 				<td>
-					${member.mobile}
+					<script type="text/javascript">
+						var phone = '${member.mobile}';
+						var p = phone.substr(0, 3) + '****' + phone.substr(7);
+						dcoument.write(p);
+					</script>
 				</td>
 				<td>
 					${member.onlyname}

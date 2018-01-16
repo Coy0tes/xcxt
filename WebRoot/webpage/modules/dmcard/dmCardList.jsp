@@ -136,8 +136,8 @@
 				<th  class="sort-column memberName">会员</th>
 				<th  class="sort-column mobile">手机号</th>
 				<th  class="sort-column dmyewuname">业务员</th>
-				<th  class="sort-column status">状态</th>
 				<th  class="sort-column packageid">套餐</th>
+				<th  class="sort-column status">状态</th>
 				<th  class="sort-column tcsclx">套餐时长类型</th>
 				<th  class="sort-column price">价格</th>
 				<th  class="sort-column numpscs">套餐配送次数</th>

@@ -31,15 +31,15 @@ public class JobThread extends HttpServlet implements Runnable {
 	}
 
 	public void init() throws ServletException {
-        System.out.println("------------执行定时检查单品团购是否成团 Thread init-------------");
-        JobThread t=new JobThread();
-        new Thread(t).start();
+//        System.out.println("------------执行定时检查单品团购是否成团 Thread init-------------");
+//        JobThread t=new JobThread();
+//        new Thread(t).start();
     }
 	
 	public void doTask(){
-		System.out.println("-------------执行定时检查单品团购是否成团 BEGIN------------------------");
-		UserUtils.executeTask();
-		System.out.println("-------------执行定时检查单品团购是否成团 END------------------------");
+//		System.out.println("-------------执行定时检查单品团购是否成团 BEGIN------------------------");
+//		UserUtils.executeTask();
+//		System.out.println("-------------执行定时检查单品团购是否成团 END------------------------");
 	}
 	
 }

@@ -120,25 +120,25 @@ public class TuangouPackageOrderService extends CrudService<TuangouPackageOrderD
 		
 		dao.zuofeiSave(tuangouPackageOrder);
 		
-		//启动一个线程推送微信消息和发送短信
-		final TuangouPackageOrder entity = tuangouPackageOrder;
-		new Thread(){
-			public void run(){
-				try {					
-					//发送短信
-					Member m = memberDao.get(entity.getMemberid());
-					if("1".equals(m.getIsPhone())){
-						StringBuffer contextString = new StringBuffer();
-						contextString.append("【有机汇】您好，订单号为"+entity.getDdh()+"的订单已取消。如有疑问，请咨询400-007-0011。");
-						String rtn = SmsUtils.doPost(new StringBuffer(m.getMobile()), contextString);
-						System.out.println(rtn);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-			}
-		}.start();
+//		//启动一个线程推送微信消息和发送短信
+//		final TuangouPackageOrder entity = tuangouPackageOrder;
+//		new Thread(){
+//			public void run(){
+//				try {					
+//					//发送短信
+//					Member m = memberDao.get(entity.getMemberid());
+//					if("1".equals(m.getIsPhone())){
+//						StringBuffer contextString = new StringBuffer();
+//						contextString.append("【有机汇】您好，订单号为"+entity.getDdh()+"的订单已取消。如有疑问，请咨询400-007-0011。");
+//						String rtn = SmsUtils.doPost(new StringBuffer(m.getMobile()), contextString);
+//						System.out.println(rtn);
+//					}
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//				
+//			}
+//		}.start();
 		
 	}
 

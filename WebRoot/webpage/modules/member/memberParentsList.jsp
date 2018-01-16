@@ -23,7 +23,12 @@
 			<font color="blue">
 				<c:if test="${member.name != null}">${member.name}</c:if>
 				<c:if test="${member.name == null}">${member.nickname}</c:if>
-			</font> &nbsp;&nbsp;&nbsp; 会员手机号：${member.mobile}
+			</font> &nbsp;&nbsp;&nbsp; 会员手机号：
+												<script type="text/javascript">
+													var phone = '${member.mobile}';
+													var p = phone.substr(0, 3) + '****' + phone.substr(7);
+													dcoument.write(p);
+												</script>
 		</h5>
 		<div class="ibox-tools">
 			<a class="collapse-link">

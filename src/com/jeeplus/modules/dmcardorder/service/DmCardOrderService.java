@@ -95,27 +95,27 @@ public class DmCardOrderService extends CrudService<DmCardOrderDao, DmCardOrder>
 	public void saveWuliu(DmCardOrder dmCardOrder){
 		super.saveWuliu(dmCardOrder);
 		
-		//新打开一个线程，推送微信消息和发送短信
-		final DmCardOrder entity = dmCardOrder;
-		new Thread(){
-			public void run(){
-				try {
-					//推送微信消息
-					systemService.sendFahuo_cardOrder(entity);
-					
-					//发送短信
-					Member m = memberDao.get(entity.getMember());
-					if("1".equals(m.getIsPhone())){
-						StringBuffer contextString = new StringBuffer();
-						contextString.append("【有机汇】您好，订单号为"+entity.getDdh()+"的商品已发货。快递单号："+entity.getWldh()+"。如有疑问，请咨询400-007-0011。");
-						String rtn = SmsUtils.doPost(new StringBuffer(m.getMobile()), contextString);
-						System.out.println(rtn);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}.start();
+//		//新打开一个线程，推送微信消息和发送短信
+//		final DmCardOrder entity = dmCardOrder;
+//		new Thread(){
+//			public void run(){
+//				try {
+//					//推送微信消息
+//					systemService.sendFahuo_cardOrder(entity);
+//					
+//					//发送短信
+//					Member m = memberDao.get(entity.getMember());
+//					if("1".equals(m.getIsPhone())){
+//						StringBuffer contextString = new StringBuffer();
+//						contextString.append("【有机汇】您好，订单号为"+entity.getDdh()+"的商品已发货。快递单号："+entity.getWldh()+"。如有疑问，请咨询400-007-0011。");
+//						String rtn = SmsUtils.doPost(new StringBuffer(m.getMobile()), contextString);
+//						System.out.println(rtn);
+//					}
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}.start();
 		
 	}
 	
@@ -181,31 +181,31 @@ public class DmCardOrderService extends CrudService<DmCardOrderDao, DmCardOrder>
 			}
 		}
 		
-		//启动一个线程推送微信消息和发送短信
-		final List<DmCardOrder> orderlist = list0;
-		if(orderlist.size()>0){
-			new Thread(){
-				public void run(){
-					try {
-							for(DmCardOrder entity : orderlist){
-								//推送微信消息
-								systemService.sendFahuo_cardOrder(entity);
-								
-								//发送短信
-								Member m = memberDao.get(entity.getMember());
-								if("1".equals(m.getIsPhone())){
-									StringBuffer contextString = new StringBuffer();
-									contextString.append("【有机汇】您好，订单号为"+entity.getDdh()+"的商品已发货。快递单号："+entity.getWldh()+"。如有疑问，请咨询400-007-0011。");
-									String rtn = SmsUtils.doPost(new StringBuffer(m.getMobile()), contextString);
-									System.out.println(rtn);
-								}
-							}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}.start();
-		}
+//		//启动一个线程推送微信消息和发送短信
+//		final List<DmCardOrder> orderlist = list0;
+//		if(orderlist.size()>0){
+//			new Thread(){
+//				public void run(){
+//					try {
+//							for(DmCardOrder entity : orderlist){
+//								//推送微信消息
+//								systemService.sendFahuo_cardOrder(entity);
+//								
+//								//发送短信
+//								Member m = memberDao.get(entity.getMember());
+//								if("1".equals(m.getIsPhone())){
+//									StringBuffer contextString = new StringBuffer();
+//									contextString.append("【有机汇】您好，订单号为"+entity.getDdh()+"的商品已发货。快递单号："+entity.getWldh()+"。如有疑问，请咨询400-007-0011。");
+//									String rtn = SmsUtils.doPost(new StringBuffer(m.getMobile()), contextString);
+//									System.out.println(rtn);
+//								}
+//							}
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}.start();
+//		}
 		
 		return msg;
 	}

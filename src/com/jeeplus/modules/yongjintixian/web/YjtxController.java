@@ -122,30 +122,30 @@ public class YjtxController extends BaseController {
 		yjtxService.save(tixian);
 		
 		
-		//启动一个线程推送微信消息和发送短信
-		final Yjtx entity = tixian;
-		new Thread() {
-			public void run() {
-				try {
-					//推送微信消息
-					systemService.send_yjtx(entity);
-					
-					//发送短信
-					Member m = new Member();
-					m.setWxopenid(entity.getWxopenid());
-					m = memberDao.getByWxopenid(m);
-					if("1".equals(m.getIsPhone())){
-						StringBuffer contextString = new StringBuffer();
-						contextString.append("【有机汇】您好，您本次提现"+entity.getJine()+"元已经汇款到指定账号，请注意查收。如有疑问，请咨询400-007-0011。");
-						String rtn = SmsUtils.doPost(new StringBuffer(m.getMobile()), contextString);
-						System.out.println(rtn);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-			}
-		}.start();
+//		//启动一个线程推送微信消息和发送短信
+//		final Yjtx entity = tixian;
+//		new Thread() {
+//			public void run() {
+//				try {
+//					//推送微信消息
+//					systemService.send_yjtx(entity);
+//					
+//					//发送短信
+//					Member m = new Member();
+//					m.setWxopenid(entity.getWxopenid());
+//					m = memberDao.getByWxopenid(m);
+//					if("1".equals(m.getIsPhone())){
+//						StringBuffer contextString = new StringBuffer();
+//						contextString.append("【有机汇】您好，您本次提现"+entity.getJine()+"元已经汇款到指定账号，请注意查收。如有疑问，请咨询400-007-0011。");
+//						String rtn = SmsUtils.doPost(new StringBuffer(m.getMobile()), contextString);
+//						System.out.println(rtn);
+//					}
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//				
+//			}
+//		}.start();
 		
 		return "redirect:"+Global.getAdminPath()+"/yongjintixian/yjtx/?repage";
 	}

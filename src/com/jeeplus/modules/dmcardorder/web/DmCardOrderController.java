@@ -146,7 +146,6 @@ public class DmCardOrderController extends BaseController {
 			System.out.println(id);
 			dmCardOrder.setId(id);
 			dmCardOrder = dmCardOrderService.get(id);
-			System.out.println(dmCardOrder.getMemberName());
 			// 如果状态等于0（待发货），就添加进数组
 			if(dmCardOrder.getStatus().equals("0")){
 				lists.add(dmCardOrder);
