@@ -24,6 +24,10 @@
 			 });
 		}
 		
+		function err(){
+			top.layer.msg("演示界面，此功能不允许操作！", {icon:2});
+		}
+		
 	</script>
 </head>
 <body class="gray-bg">
@@ -263,7 +267,8 @@
 	    				</shiro:hasPermission>
 					</c:if>
 					<c:if test="${tuangouOrder.status =='1' }">
-						<a href="#" onclick="openDialogView('查看物流信息', '${ctx}/sf/showList?wldh=${tuangouOrder.wldh}','60%', '80%')" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a>
+						<a href="#" onclick="err()" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a>
+<%-- 						<a href="#" onclick="openDialogView('查看物流信息', '${ctx}/sf/showList?wldh=${tuangouOrder.wldh}','60%', '80%')" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a> --%>
 					</c:if>
     				<c:if test="${tuangouOrder.status != '1'  and tuangouOrder.status !='4' and tuangouOrder.status !='2' and tuangouOrder.flag != '1'}">
 	    					<a href="#" onclick="openDialog('订单作废 警告：订单作废后相关信息无法恢复！', '${ctx}/tuangouorder/tuangouOrder/quxiaoForm?id=${tuangouOrder.id}','85%', '90%')"  class="btn btn-danger btn-xs" ><i class="fa fa-edit"></i> 取消</a>

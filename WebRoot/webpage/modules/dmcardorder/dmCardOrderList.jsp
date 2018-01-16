@@ -22,6 +22,9 @@
 			 openDialog('批量发货', '${ctx}/dmcardorder/dmCardOrder/piliangFahuoList?ids='+checkedidArray,'85%', '95%');
 			 });
 		}
+		function err(){
+			top.layer.msg("演示界面，此功能不允许操作！", {icon:2});
+		}
 	</script>
 </head>
 <body class="gray-bg">
@@ -207,7 +210,8 @@
 						<a href="${ctx}/dmcardorder/dmCardOrder/delete?id=${dmCardOrder.id}" onclick="return confirmx('确认要删除该套餐卡订单管理吗？', this.href)"   class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> 删除</a>
 					</shiro:hasPermission>
 					<c:if test="${dmCardOrder.status =='1' }">
-						<a href="#" onclick="openDialogView('查看物流信息', '${ctx}/sf/showList?wldh=${dmCardOrder.wldh}','50%', '80%')" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a>
+						<%-- <a href="#" onclick="openDialogView('查看物流信息', '${ctx}/sf/showList?wldh=${dmCardOrder.wldh}','50%', '80%')" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a> --%>
+						<a href="#" onclick="err()" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a>
 					</c:if>
 					<c:if test="${dmCardOrder.status == '0'}">
 						<c:if test="${dmCardOrder.gclx == '1' }">

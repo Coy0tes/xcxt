@@ -35,6 +35,10 @@
 		    
 		});
 		
+		function err(){
+			top.layer.msg("演示界面，此功能不允许操作！", {icon:2});
+		}
+		
 	</script>
 </head>
 <body class="gray-bg">
@@ -221,7 +225,8 @@
 	    				<a href="#" onclick="openDialog('发货', '${ctx}/goodsorder/goodsOrder/form?id=${goodsOrder.id}','85%', '95%')" class="btn btn-success btn-xs" ><i class="fa fa-edit"></i> 发货</a>
 					</c:if>
 					<c:if test="${goodsOrder.status =='1' }">
-						<a href="#" onclick="openDialogView('查看物流信息', '${ctx}/sf/showList?wldh=${goodsOrder.wldh}','60%', '95%')" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a>
+						<a href="#" onclick="err()" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a>
+						<%-- <a href="#" onclick="openDialogView('查看物流信息', '${ctx}/sf/showList?wldh=${goodsOrder.wldh}','60%', '95%')" class="btn btn-primary btn-xs" ><i class="fa fa-search-plus"></i> 物流信息</a> --%>
 					</c:if>
     				<shiro:hasPermission name="goodsorder:goodsOrder:del">
 						<a href="${ctx}/goodsorder/goodsOrder/delete?id=${goodsOrder.id}" onclick="return confirmx('确认要删除该菜品订单吗？', this.href)"   class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> 删除</a>

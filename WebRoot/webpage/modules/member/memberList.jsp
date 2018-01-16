@@ -169,6 +169,9 @@
 			    	});
 			   });
 		}
+		function err(){
+			top.layer.msg("演示界面，此功能不允许操作！", {icon:2});
+		}
 	</script>
 	
 	<link rel="stylesheet" href="${ctxStatic}/zoomify/css/zoomify.min.css">
@@ -255,7 +258,8 @@
 	       <a href="#" onclick="wechatForm()"   class="btn btn-primary btn-outline btn-sm "><i class="fa fa-gear"></i> 批量设置微信提醒</a>
 	       <a href="#" onclick="openQuanxian()"   class="btn btn-primary btn-outline btn-sm "><i class="fa fa-gear"></i> 批量开通分销权限</a>
 	       <a href="#" onclick="closeQuanxian()"   class="btn btn-primary btn-outline btn-sm "><i class="fa fa-gear"></i> 批量关闭分销权限</a>
-	       <a href="#" onclick="sendSms()"   class="btn btn-primary btn-outline btn-sm "><i class="fa fa-envelope-o"></i> 批量发送短信</a>
+	       <a href="#" onclick="err()"   class="btn btn-primary btn-outline btn-sm "><i class="fa fa-envelope-o"></i> 批量发送短信</a>
+<!-- 	       <a href="#" onclick="sendSms()"   class="btn btn-primary btn-outline btn-sm "><i class="fa fa-envelope-o"></i> 批量发送短信</a> -->
 		   &nbsp;&nbsp;
 		   <input type="checkbox" id="tip">&nbsp;显示微信信息
 		   
@@ -306,7 +310,7 @@
 					<script type="text/javascript">
 						var phone = '${member.mobile}';
 						var p = phone.substr(0, 3) + '****' + phone.substr(7);
-						dcoument.write(p);
+						document.write(p);
 					</script>
 				</td>
 				<td>

@@ -27,7 +27,7 @@
 												<script type="text/javascript">
 													var phone = '${member.mobile}';
 													var p = phone.substr(0, 3) + '****' + phone.substr(7);
-													dcoument.write(p);
+													document.write(p);
 												</script>
 		</h5>
 		<div class="ibox-tools">
